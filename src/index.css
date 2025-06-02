@@ -1,0 +1,33 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+@import "highlight.js/styles/atom-one-dark.css";
+@import "katex/dist/katex.min.css";
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-roboto: "Roboto", sans-serif;
+}
+
+@utility focus-ring {
+  @apply focus:ring-2 focus:ring-sky-400 focus:outline-none;
+}
+
+@utility indigo-dye {
+  @apply bg-[#024A70];
+}
+
+@keyframes flash-highlight {
+  0% {
+    background-color: #207cad;
+  } /* Tailwind yellow-100 */
+  100% {
+    background-color: transparent;
+  }
+}
+.animate-flash {
+  animation: flash-highlight 0.8s ease;
+}
+
+html {
+  scroll-behavior: smooth;
+}
