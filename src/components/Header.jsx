@@ -1,14 +1,12 @@
 import React, { useRef, useEffect } from "react";
-import { useUIStore } from "../store/useUIStore";
 import { useMarkdownStore } from "../store/useMarkdownStore";
 import { useFilenameStore } from "../store/useFilenameStore";
-import { FiEye, FiEyeOff, FiDownload, FiMenu, FiX } from "react-icons/fi";
+import { FiEye, FiEyeOff, FiDownload } from "react-icons/fi";
 
 const DEFAULT_FILENAME = "Untitled.md";
 
 const Header = () => {
   const { preview, setPreview, markdown } = useMarkdownStore();
-  const { settingsOpen, setSettingsOpen } = useUIStore();
 
   // Zustand filename store
   const {
@@ -55,7 +53,7 @@ const Header = () => {
     link.click();
     document.body.removeChild(link);
     // Clean up
-    setTimeout(() => URL.revokeObjectURL(url), 100);
+    setTimeout(() => URL.revokeObjectURL(link.href), 100);
   };
 
   // Save file name on Enter, cancel on Escape
@@ -75,7 +73,7 @@ const Header = () => {
           {!editing ? (
             <h1
               ref={h1Ref}
-              className="focus-ring cursor-pointer rounded border border-dashed border-stone-400 px-1 text-lg font-bold text-slate-800 transition duration-500 select-none hover:cursor-text focus:border-none dark:text-slate-200"
+              className="focus-ring cursor-pointer rounded border border-dashed border-slate-600 px-1 text-lg font-bold text-slate-900 transition duration-500 select-none hover:cursor-text focus:border-none dark:text-slate-200"
               tabIndex={0}
               onClick={startEditing}
               role="button"
@@ -87,7 +85,7 @@ const Header = () => {
           ) : (
             <input
               ref={inputRef}
-              className="w-50 rounded-xl bg-transparent px-1 text-lg font-bold text-stone-800 outline-none selection:bg-slate-300 dark:text-stone-200 dark:selection:bg-slate-700"
+              className="w-50 rounded-xl bg-transparent px-1 text-lg font-bold text-slate-900 outline-none selection:bg-slate-300 dark:text-slate-200 dark:selection:bg-slate-700"
               value={tempName}
               onChange={(e) => setTempName(e.target.value)}
               onBlur={saveFilename}
@@ -101,7 +99,7 @@ const Header = () => {
         <nav className="flex items-center gap-3">
           {/* Eye Icon for Mobile View */}
           <button
-            className="text-stone-600 transition-colors hover:text-stone-800 md:hidden dark:text-stone-300 dark:hover:text-stone-100"
+            className="text-slate-900 transition-colors hover:text-slate-900 md:hidden dark:text-slate-200 dark:hover:text-slate-200"
             aria-label={preview ? "Show Editor" : "Show Preview"}
             onClick={() => setPreview(!preview)}
           >
@@ -110,35 +108,10 @@ const Header = () => {
           {/* Download Icon */}
           <button
             aria-label="Download"
-            className="focus-ring ml-2 cursor-pointer rounded-sm text-stone-600 transition-colors hover:text-stone-800 dark:text-stone-300 dark:hover:text-stone-100"
+            className="focus-ring ml-2 cursor-pointer rounded-sm text-slate-900 transition-colors hover:text-slate-900 dark:text-slate-200 dark:hover:text-slate-200"
             onClick={handleDownload}
           >
             <FiDownload size={22} />
-          </button>
-          {/* Settings Icon with snappy animation */}
-          <button
-            aria-label={settingsOpen ? "Close Settings" : "Open Settings"}
-            className="focus-ring relative ml-2 flex h-[25px] w-[25px] cursor-pointer items-center justify-center rounded-sm text-stone-600 transition-colors hover:text-stone-800 dark:text-stone-300 dark:hover:text-stone-100"
-            onClick={() => setSettingsOpen(!settingsOpen)}
-          >
-            <span
-              className={`absolute transition-all duration-200 [transition-timing-function:cubic-bezier(0.4,0,0.2,1)] ${
-                settingsOpen
-                  ? "scale-75 -rotate-45 opacity-0"
-                  : "scale-100 rotate-0 opacity-100"
-              } pointer-events-none`}
-            >
-              <FiMenu size={22} />
-            </span>
-            <span
-              className={`absolute transition-all duration-200 [transition-timing-function:cubic-bezier(0.4,0,0.2,1)] ${
-                settingsOpen
-                  ? "scale-100 rotate-0 opacity-100"
-                  : "scale-75 rotate-45 opacity-0"
-              } pointer-events-none`}
-            >
-              <FiX size={22} />
-            </span>
           </button>
         </nav>
       </header>

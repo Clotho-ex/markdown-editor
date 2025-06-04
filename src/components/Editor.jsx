@@ -1,8 +1,15 @@
-import React from "react";
+import { memo, useCallback } from "react";
 import { useMarkdownStore } from "../store/useMarkdownStore";
 
-const Editor = () => {
+const Editor = memo(() => {
   const { markdown, setMarkdown } = useMarkdownStore();
+
+  const handleChange = useCallback(
+    (e) => {
+      setMarkdown(e.target.value);
+    },
+    [setMarkdown],
+  );
 
   return (
     <div className="flex h-full flex-col">
@@ -14,7 +21,7 @@ const Editor = () => {
       <textarea
         id="markdown-editor"
         value={markdown}
-        onChange={(e) => setMarkdown(e.target.value)}
+        onChange={handleChange}
         placeholder="Type your markdown here..."
         spellCheck={false}
         aria-label="Markdown Editor"
@@ -22,6 +29,6 @@ const Editor = () => {
       />
     </div>
   );
-};
+});
 
 export default Editor;

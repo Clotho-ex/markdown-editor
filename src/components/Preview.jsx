@@ -1,129 +1,99 @@
+import { useState, useEffect, useMemo, useRef } from "react";
+import debounce from "lodash.debounce";
 import { useMarkdownStore } from "../store/useMarkdownStore";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
+import remarkBreaks from "remark-breaks";
 import remarkExternalLinks from "remark-external-links";
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
-import { FiCopy } from "react-icons/fi";
+import Pre from "./Pre";
 
 const Preview = () => {
   const { markdown } = useMarkdownStore();
+  const [debouncedMarkdown, setDebouncedMarkdown] = useState(markdown);
+  const [copiedCodeBlocks, setCopiedCodeBlocks] = useState(new Map());
+  const copyTimeouts = useRef(new Map());
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  // Recursive function to extract plain text from React elements
-  const extractTextFromChildren = (children) => {
-    if (typeof children === "string") {
-      return children;
-    }
+  const debouncedSetMarkdown = useMemo(() => {
+    return debounce((value) => {
+      setDebouncedMarkdown(value);
+      setIsProcessing(false);
+    }, 300);
+  }, []);
 
-    if (Array.isArray(children)) {
-      return children.map(extractTextFromChildren).join("");
-    }
+  useEffect(() => {
+    setIsProcessing(true);
+    debouncedSetMarkdown(markdown);
+    return () => debouncedSetMarkdown.cancel();
+  }, [markdown, debouncedSetMarkdown]);
 
-    if (children?.props?.children) {
-      return extractTextFromChildren(children.props.children);
-    }
+  useEffect(() => {
+    return () => {
+      copyTimeouts.current.forEach((timeout) => clearTimeout(timeout));
+    };
+  }, []);
 
-    return "";
-  };
+  const Heading = ({ children, id, tag: Tag }) => (
+    <Tag id={id} className="group scroll-mt-20">
+      {children}
+      {id && (
+        <a
+          href={`#${id}`}
+          className="ml-2 text-blue-500 opacity-0 transition-opacity group-hover:opacity-100"
+        >
+          #
+        </a>
+      )}
+    </Tag>
+  );
 
-  const components = {
-    // Custom blockquote with better styling
-    blockquote: ({ children }) => (
-      <blockquote className="border-l-4 border-blue-500 bg-blue-50 p-4 italic dark:bg-blue-900/20">
-        {children}
-      </blockquote>
-    ),
-
-    // Custom headings with better styling
-    h1: ({ children, id }) => (
-      <h1 id={id} className="group scroll-mt-20">
-        {children}
-        {id && (
-          <a
-            href={`#${id}`}
-            className="ml-2 text-blue-500 opacity-0 transition-opacity group-hover:opacity-100"
-            aria-label="Link to this heading"
-          >
-            #
-          </a>
-        )}
-      </h1>
-    ),
-    h2: ({ children, id }) => (
-      <h2 id={id} className="group scroll-mt-20">
-        {children}
-        {id && (
-          <a
-            href={`#${id}`}
-            className="ml-2 text-blue-500 opacity-0 transition-opacity group-hover:opacity-100"
-            aria-label="Link to this heading"
-          >
-            #
-          </a>
-        )}
-      </h2>
-    ),
-    h3: ({ children, id }) => (
-      <h3 id={id} className="group scroll-mt-20">
-        {children}
-        {id && (
-          <a
-            href={`#${id}`}
-            className="ml-2 text-blue-500 opacity-0 transition-opacity group-hover:opacity-100"
-            aria-label="Link to this heading"
-          >
-            #
-          </a>
-        )}
-      </h3>
-    ),
-
-    // Custom code blocks with copy button
-    pre: ({ children }) => {
-      const codeContent = extractTextFromChildren(children);
-
-      return (
-        <div className="group relative">
-          <pre className="overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm">
-            {children}
-          </pre>
-          <button
-            className="absolute top-2 right-2 cursor-pointer rounded bg-gray-700 p-2 text-white opacity-0 transition-all duration-200 group-hover:opacity-100 hover:bg-gray-600 active:bg-gray-500"
-            onClick={async () => {
-              try {
-                await navigator.clipboard.writeText(codeContent);
-                console.log("Code copied to clipboard!");
-              } catch (err) {
-                console.error("Failed to copy code:", err);
-              }
-            }}
-            aria-label="Copy code to clipboard"
-          >
-            <FiCopy size={16} />
-          </button>
-        </div>
-      );
-    },
-
-    // Enhanced tables
-    table: ({ children }) => (
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+  const components = useMemo(
+    () => ({
+      blockquote: ({ children }) => (
+        <blockquote className="border-l-4 border-blue-500 bg-blue-50 p-4 italic dark:bg-blue-900/20">
           {children}
-        </table>
-      </div>
-    ),
-  };
+        </blockquote>
+      ),
+      h1: (props) => <Heading {...props} tag="h1" />,
+      h2: (props) => <Heading {...props} tag="h2" />,
+      h3: (props) => <Heading {...props} tag="h3" />,
+      pre: (props) => (
+        <Pre
+          {...props}
+          copiedCodeBlocks={copiedCodeBlocks}
+          setCopiedCodeBlocks={setCopiedCodeBlocks}
+          copyTimeouts={copyTimeouts}
+        />
+      ),
+      table: ({ children }) => (
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            {children}
+          </table>
+        </div>
+      ),
+    }),
+    [copiedCodeBlocks],
+  );
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex-shrink-0 bg-slate-800 p-4">
-        <p className="font-mono font-bold tracking-widest text-slate-200">
-          Preview
-        </p>
+      <div className="flex-shrink-0 bg-stone-200 p-4 dark:bg-slate-800">
+        <div className="flex items-center justify-between">
+          <p className="font-mono font-bold tracking-widest text-slate-900 dark:text-slate-200">
+            Preview
+          </p>
+          {isProcessing && (
+            <div className="text-xs text-slate-600 dark:text-slate-400">
+              Processing...
+            </div>
+          )}
+        </div>
       </div>
       <div className="flex-1 overflow-y-auto bg-stone-50 p-4 dark:bg-slate-900">
         <article className="prose prose-lg prose-neutral dark:prose-invert prose-headings:scroll-mt-20 prose-a:text-blue-600 dark:prose-a:text-blue-400 max-w-none text-slate-800 dark:text-slate-200">
@@ -131,6 +101,7 @@ const Preview = () => {
             remarkPlugins={[
               remarkGfm,
               remarkMath,
+              remarkBreaks,
               [
                 remarkExternalLinks,
                 { target: "_blank", rel: "noopener noreferrer" },
@@ -144,7 +115,7 @@ const Preview = () => {
             ]}
             components={components}
           >
-            {markdown}
+            {debouncedMarkdown}
           </ReactMarkdown>
         </article>
       </div>
