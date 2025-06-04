@@ -1,1 +1,0 @@
-<article className="prose prose-lg prose-neutral dark:prose-invert max-w-none text-left text-slate-800 dark:text-slate-200 prose-headings:scroll-mt-20 prose-a:text-blue-600 dark:prose-a:text-blue-400">
