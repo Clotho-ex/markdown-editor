@@ -2,7 +2,7 @@
 
 A modern, responsive markdown editor built with React, featuring real-time preview, syntax highlighting, and a clean interface.
 
-![Markdown Editor Screenshot](/image.png)
+![Markdown Editor Screenshot](public/image.png)
 
 ## ✨ Features  
 
