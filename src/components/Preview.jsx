@@ -7,6 +7,7 @@ import remarkMath from "remark-math";
 import remarkBreaks from "remark-breaks";
 import remarkExternalLinks from "remark-external-links";
 import rehypeKatex from "rehype-katex";
+import rehypeSanitize from "rehype-sanitize";
 import rehypeRaw from "rehype-raw";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
@@ -109,9 +110,9 @@ const Preview = () => {
             ]}
             rehypePlugins={[
               rehypeSlug,
-              rehypeRaw,
               rehypeHighlight,
               rehypeKatex,
+              rehypeSanitize,
             ]}
             components={components}
           >
