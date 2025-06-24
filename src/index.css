@@ -28,6 +28,10 @@
   animation: flash-highlight 0.8s ease;
 }
 
+.prose h1 {
+  @apply text-4xl font-bold;
+}
+
 html {
   scroll-behavior: smooth;
 }
