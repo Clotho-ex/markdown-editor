@@ -7,11 +7,25 @@ import remarkMath from "remark-math";
 import remarkBreaks from "remark-breaks";
 import remarkExternalLinks from "remark-external-links";
 import rehypeKatex from "rehype-katex";
-import rehypeSanitize from "rehype-sanitize";
-import rehypeRaw from "rehype-raw";
+import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
 import Pre from "./Pre";
+
+const schema = {
+  ...defaultSchema,
+  attributes: {
+    ...defaultSchema.attributes,
+    code: [
+      ...(defaultSchema.attributes.code || []),
+      ["className"], // allow className on <code>
+    ],
+    pre: [
+      ...(defaultSchema.attributes.pre || []),
+      ["className"], // allow className on <pre>
+    ],
+  },
+};
 
 const Preview = () => {
   const { markdown } = useMarkdownStore();
@@ -112,7 +126,7 @@ const Preview = () => {
               rehypeSlug,
               rehypeHighlight,
               rehypeKatex,
-              rehypeSanitize,
+              rehypeSanitize(schema),
             ]}
             components={components}
           >

@@ -4,7 +4,7 @@ A modern, responsive markdown editor built with React, featuring real-time previ
 
 ![Markdown Editor Screenshot](public/image.png)
 
-## ✨ Features  
+## ✨ Features
 
 ### Core Functionality
 
@@ -175,7 +175,7 @@ The app uses [Zustand](https://github.com/pmndrs/zustand) for lightweight state 
 
 ### Bundle Size
 
-- **Main bundle**: ~200KB (gzipped)
+- **Main bundle**: \~200KB (gzipped)
 - **Dependencies**: Optimized with only necessary packages
 - **Code splitting**: Automatic with Vite
 
@@ -275,11 +275,12 @@ remarkPlugins={[
 // Rehype plugins (HTML processing)
 rehypePlugins={[
   rehypeSlug,        // Heading IDs
-  rehypeRaw,         // Raw HTML support
   rehypeHighlight,   // Syntax highlighting
   rehypeKatex,       // Math rendering
 ]}
 ```
+
+> ⚠️ **Note:** Raw HTML is not supported for security reasons. This ensures safer rendering and prevents injection vulnerabilities.
 
 ## 🎨 Styling
 
